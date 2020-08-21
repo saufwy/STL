@@ -10,10 +10,15 @@
 
 namespace sgi {
 
+void _no_memory () {
+    std::cout << "Failed to allocate memory!" << std::endl;
+    exit (1);
+}
+
 template<typename T>
-inline T* allocate(ptrdiff_t size, T*) {
-    set_new_handler(0);
-    T* tmp = ::operator new(size * sizeof(T));
+inline T* _allocate(ptrdiff_t size, T*) {
+    std::set_new_handler(_no_memory);
+    T* tmp = (T*)::operator new(size * sizeof(T));
     if (tmp == nullptr) {
         std::cout << "alllocte error" << std::endl;
         exit(0);
@@ -22,7 +27,7 @@ inline T* allocate(ptrdiff_t size, T*) {
 }
 
 template<typename T>
-inline void deallocate(T* buffer) {
+inline void _deallocate(T* buffer) {
     ::operator delete(buffer);
 }
 
@@ -38,10 +43,10 @@ public:
     typedef size_t size_type;
 
     pointer allocate(size_type n) {
-        return ::allocate(n, pointer(0));
+        return _allocate(n, pointer(0));
     }
     void deallocate(pointer p) {
-        ::deallocate(p);
+        _deallocate(p);
     }
 
 
@@ -54,7 +59,7 @@ public:
     }
 
     size_type init_page_size() {
-        return std::max(size_type(1), size_type(4096/sizeof(T));
+        return std::max(size_type(1), size_type(4096/sizeof(T)));
     }
     size_type max_size() {
         return std::max(size_type(1), size_type(UINT_MAX/sizeof(T)));

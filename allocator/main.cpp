@@ -3,6 +3,8 @@
 #include <cstdlib>
 #include <iostream>
 
+#include "sgi_defalloc.h"
+
 class Object {
 public:
     Object(int id) {
@@ -17,7 +19,8 @@ protected:
     int _id;
 };
 
-int main() {
+void test_std_alloc() {
+    // std
     int size = 10;
     std::allocator<Object> alloc;
     Object* p = alloc.allocate(size);
@@ -26,6 +29,18 @@ int main() {
         alloc.destroy(&p[i]);
     }
     alloc.deallocate(p, size);
+}
+
+void test_sgi_alloc() {
+    int size = 10;
+    sgi::allocator<Object> alloc;
+    Object* p = alloc.allocate(size);
+    std::cout << std::hex << p << std::endl;
+    alloc.deallocate(p);
+}
+
+int main() {
+    test_sgi_alloc();
     return 0;
 }
 
